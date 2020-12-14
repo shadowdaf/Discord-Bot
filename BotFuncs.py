@@ -6,6 +6,7 @@ Created on Wed Jan 29 16:56:05 2020
 """
 from datetime import datetime as dt
 from mcstatus import MinecraftServer
+from mcrcon import MCRcon
 import discord
 
 def getMembers(guild):
@@ -57,6 +58,27 @@ def make_time(timestring):
         format +=100
     
     return
+
+def get_tickrate(ip,rconpassword):
+    try:
+        with MCRcon(ip,rconpassword) as mcr:
+            resp = mcr.command("/cofh tps")
+        #print(resp)
+            mcr.disconnect()
+        dummy = resp.split("TPS") 
+        tps = [dummy[0].strip()]
+        for i in dummy:
+            loc = i.find(")")+1
+            if (loc):
+                tps.append(i[loc:])
+        tps = tps[:-1]
+    except:
+        tps = ["Unable to access tps information"]
+
+    
+    
+    
+    return tps
 
 def get_mc_status(ip):
     #check for valid ip

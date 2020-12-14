@@ -23,6 +23,8 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN').strip('{').strip('}')
 GUILD = ['Glassie Squad']
 
+rcon_password = "minecraft"
+
 bot = commands.Bot(command_prefix = "!gg ", case_insensitive=True)
 #bot.timer_manager = timers.TimerManage(bot)
 
@@ -164,15 +166,26 @@ async def schpasta(ctx, *args):
 async def minecraft_server_status(ctx, ip, *args):
     print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
     ip_address = ctx.message.content.split(" ")[2]
-    print(ip_address)
+    #print(ip_address)
     out = BF.get_mc_status(ip_address)
     status = out.pop("status")
     if status == -1:
         await ctx.send("That is not a valid IP")
     else:
-        embed = discord.Embed(colour=out.pop("colour"),title=out.pop("title"),description=out.pop("description"))
+        embed = discord.Embed(colour=out["colour"],title=out["title"],description=out["description"])
+        if "tps" in ctx.message.content.lower():
+            tps = BF.get_tickrate(ip_address, rcon_password)
+            embed.add_field(name="TPS",value="\n".join(tps))
         #embed2 = embed.from_dict(out)
-        await ctx.send(embed=embed)
+        msg = await ctx.send(embed=embed)
+        while (status != -1):
+            await asyncio.sleep(60)
+            out = BF.get_mc_status(ip_address)
+            embed = discord.Embed(colour=out["colour"],title=out["title"],description=out["description"])
+            if "tps" in ctx.message.content.lower():
+                tps = BF.get_tickrate(ip_address, rcon_password)
+                embed.add_field(name="TPS",value="\n".join(tps))
+            await msg.edit(embed = embed)
     return
 """
 @bot.command(name="reminder", help="Sets a reminder - format is !gg reminder YYYY-MM-DD_hh:mm title")
