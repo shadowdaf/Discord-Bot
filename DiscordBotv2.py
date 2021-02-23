@@ -58,22 +58,6 @@ async def unsilence(ctx, *args):
 		print("---" + BF.user2name(mem) + " has been unmuted")
 	return
 
-@bot.command(name="p90",help="Plays the Jimbob P90 quote")
-@commands.has_role(bot_user_role)
-async def p90(ctx, *args):
-    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
-    chan = ctx.message.author.voice.channel
-    if(ctx.message.mentions):
-        target = BF.user2name(ctx.message.mentions[0])
-        chan = BF.get_user_vc(ctx.message.guild,target)
-    sound = os.path.join(os.getcwd(),"audios","p90_faggot.mp3")
-    length = MP3(sound).info.length
-    twa = await chan.connect()
-    twa.play(discord.FFmpegPCMAudio(sound))
-    while twa.is_playing():
-        await asyncio.sleep(length+1)
-    await twa.disconnect()
-    return
 
 @bot.command(name="bath",help="Moves specified users to the bath")
 @commands.has_role(bot_user_role)
@@ -122,24 +106,6 @@ async def gdi(ctx, *args):
             f.write("   Voice channel names:\n")
             for vc in vcs:
                 f.write("       "+str(vc)+"\n")
-
-
-@bot.command(name="JimNsong",help="Plays the Jimbob N-word song")
-@commands.has_role(bot_user_role)
-async def JimNsong(ctx, *args):
-    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
-    chan = ctx.message.author.voice.channel
-    if(ctx.message.mentions):
-        target = BF.user2name(ctx.message.mentions[0])
-        chan = BF.get_user_vc(ctx.message.guild,target)
-    sound = os.path.join(os.getcwd(),"audios","JimbobN.mp3")
-    length = MP3(sound).info.length
-    twa = await chan.connect()  
-    twa.play(discord.FFmpegPCMAudio(sound))
-    while twa.is_playing():
-        await asyncio.sleep(length+1)
-    await twa.disconnect()
-    return
 
 @bot.command(name="whereis", help="Tells you what voice channel a user is in")
 @commands.has_role(admin_role)
