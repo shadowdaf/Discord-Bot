@@ -21,9 +21,8 @@ logger.addHandler(handler)
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN').strip('{').strip('}')
-GUILD = ['Glassie Squad']
 
-rcon_password = "minecraft"
+rcon_password = os.getenv('RCON_PASSWORD').strip('{').strip('}')
 
 bot = commands.Bot(command_prefix = "!gg ", case_insensitive=True)
 #bot.timer_manager = timers.TimerManage(bot)
