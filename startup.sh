@@ -1,5 +1,6 @@
-cd /Discord-Bot-main
+cd /Discord-Bot-main/
+pwd
 ls
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 echo "finished pip"
-python DiscordBotv2.py
+python3 DiscordBotv2.py
