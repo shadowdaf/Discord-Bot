@@ -9,7 +9,7 @@ RUN apt-get update --fix-missing -qq && apt-get install -y -q \
 	sed
 
 #Fetch discord bot files
-RUN sudo git clone https://github.com/shadowdaf/Discord-Bot.git
+RUN git clone https://github.com/shadowdaf/Discord-Bot.git
 #create .env file
 ARG DISCORD_TOKEN
 ARG RCON_PASSWORD

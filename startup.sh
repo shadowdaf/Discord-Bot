@@ -1,4 +1,4 @@
-cd /Discord-Bot-main/
+cd /Discord-Bot/
 pwd
 ls
 python3 -m pip install -r requirements.txt
