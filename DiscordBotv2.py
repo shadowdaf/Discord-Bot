@@ -106,7 +106,7 @@ async def gdi(ctx, *args):
             for vc in vcs:
                 f.write("       "+str(vc)+"\n")
 
-@bot.command(name="whereis", help="Tells you what voice channel a user is in")
+@bot.command(name="whereis", help="Schisty is bastard man")
 @commands.has_role(admin_role)
 async def whereis(ctx, user, *args):
     print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
