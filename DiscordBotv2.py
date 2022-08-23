@@ -233,6 +233,7 @@ async def minecraft_server_status(ctx, ip, *args):
                 desc = out["description"]
             embed = discord.Embed(colour=out["colour"],title=out["title"],description=desc)
             embed.set_thumbnail(url=mc_thumb)
+            embed.set_footer(text="Last updated {0}".format(BF.get_current_time()))
             await msg.edit(embed = embed)
     return
 """
