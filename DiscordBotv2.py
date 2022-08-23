@@ -4,7 +4,7 @@ Created on Sat Sep 12 22:03:32 2020
 
 @author: Dafydd
 """
-import nest_asyncio,asyncio
+import nest_asyncio,asyncio,aiofiles,aiocsv
 nest_asyncio.apply()
 
 import discord,os,logging,datetime
@@ -24,12 +24,12 @@ TOKEN = os.getenv('DISCORD_TOKEN').strip('{').strip('}')
 
 rcon_password = os.getenv('RCON_PASSWORD').strip('{').strip('}')
 
-bot = commands.Bot(command_prefix = "!gg ", case_insensitive=True)
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix = "!gg ", case_insensitive=True, intents=intents)
 #bot.timer_manager = timers.TimerManage(bot)
 
 bot_user_role = 'unfunny'
 admin_role = 'God'
-jim = "Jimbob#9284"
 
 
 @bot.event
@@ -71,7 +71,7 @@ async def bath(ctx, *args):
             else:
                 vic.append(BF.user2name(mem))
     else:
-        vic.append(jim)
+        vic.append(BF.find_jim(guild))
     mem, membList = BF.getMembers(guild)
     bath_chan = BF.getVoiceChannels(guild)['Bath']
     print(vic)
@@ -87,7 +87,7 @@ async def bath(ctx, *args):
 async def gdi(ctx, *args):
     print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
     ctime = datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d_%Hh%Mm%Ss")
-    file = os.path.join("discord_infos",ctime+".txt")
+    file = os.path.join(os.getcwd(),"discord_infos",ctime+".txt")
     print(file)
     with open(file, "w") as f:
         for g in bot.guilds:
@@ -106,7 +106,7 @@ async def gdi(ctx, *args):
             for vc in vcs:
                 f.write("       "+str(vc)+"\n")
 
-@bot.command(name="whereis", help="Schisty is bastard man")
+@bot.command(name="whereis", help="Will locate users voice channel")
 @commands.has_role(admin_role)
 async def whereis(ctx, user, *args):
     print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
@@ -126,6 +126,76 @@ async def schpasta(ctx, *args):
     await ctx.send("MostlySchisty Exploiter He use No Recoil+Trigger(Aimbot)+Esp(WallHack)")
     return
 
+@bot.command(name="unixtime", help="Takes a time and date and gives it in unix time")
+@commands.has_role(bot_user_role)
+async def unix_time(ctx, *args):
+    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
+    intime = " ".join(ctx.message.content.split(" ")[2:])
+    utime = BF.get_unix_time(intime)
+    print(utime)
+    await ctx.send("Unix time is {0}".format(str(utime)))
+    return
+
+@bot.command(name="nickbackup", help="Backs up all nicknames")
+@commands.has_role(admin_role)
+async def backup_nicknames(ctx, *args):
+    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
+    guild = ctx.message.channel.guild
+    await BF.backup_user_nicknames(guild)
+    await ctx.send("Backup has been completed")
+    return
+
+
+
+@bot.command(name="changenick", help="Changes a persons nickname")
+@commands.has_role(admin_role)
+async def change_nickname(ctx,*args):
+    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
+    users = ctx.message.mentions
+    try:
+        newnick = ctx.message.content.split()[3]
+    except:
+        newnick = None
+    for u in users:
+        try:
+            await u.edit(nick=newnick)
+        except:
+            print("Failed to change name of {0}".format(u))
+    return
+    
+@bot.command(name="nickrestore", help="Resores all nicknames from backup")
+@commands.has_role(admin_role)   
+async def restore_nicknames(ctx, *args):
+    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
+    guild = ctx.message.channel.guild
+    async with aiofiles.open("{0}.csv".format(guild), mode="r", encoding="utf-8",newline="") as afp:
+        async for row in aiocsv.AsyncReader(afp):
+            member = guild.get_member(int(row[0]))
+            old_nick = row[2]
+            if old_nick == '':
+                old_nick = None
+            print(old_nick)
+            print(member)
+            try:
+                await member.edit(nick=old_nick)
+            except:
+                print("Failed to change name of {0}".format(member))
+    return
+
+@bot.command(name="call_you_bruce", help="Bruce")
+@commands.is_owner()
+async def call_you_bruce(ctx, *args):
+    print(datetime.datetime.strftime(datetime.datetime.now(),"[%Y-%m-%d_%H:%M:%S]") +" {0} executed command {1}".format(BF.user2name(ctx.message.author),ctx.message.content))
+    guild = ctx.message.channel.guild
+    for m in guild.members:
+        try:
+            await m.edit(nick="Bruce")
+        except:
+            print("Failed to change name of {0}".format(m))
+    return
+
+
+
 @bot.command(name="mcstatus", help = "Gives information on minecraft server at given ip")
 @commands.has_role(bot_user_role)
 async def minecraft_server_status(ctx, ip, *args):
@@ -134,22 +204,35 @@ async def minecraft_server_status(ctx, ip, *args):
     #print(ip_address)
     out = BF.get_mc_status(ip_address)
     status = out.pop("status")
+    mc_thumb = "attachment://"+os.path.join(os.getcwd(),"images","mc.png")
     if status == -1:
         await ctx.send("That is not a valid IP")
     else:
-        embed = discord.Embed(colour=out["colour"],title=out["title"],description=out["description"])
-        if "tps" in ctx.message.content.lower():
-            tps = BF.get_tickrate(ip_address, rcon_password)
-            embed.add_field(name="TPS",value="\n".join(tps))
-        #embed2 = embed.from_dict(out)
+        if out["players"]:
+            players = "\n".join(out["players"])
+            desc = "{0} \n>>> {1}".format(out["description"],players)
+        else:
+            desc = out["description"]
+        embed = discord.Embed(colour=out["colour"],title=out["title"],description=desc)
+        embed.set_thumbnail(url=mc_thumb)
+        embed.set_footer(text="Last updated {0}".format(BF.get_current_time()))
+        """
+        if out["players"]:
+            content = "\n".join(out["players"])
+            embed.add_field(title="hello",value="awesome",inline=False)
+        """
+        
         msg = await ctx.send(embed=embed)
         while (status != -1):
             await asyncio.sleep(60)
             out = BF.get_mc_status(ip_address)
-            embed = discord.Embed(colour=out["colour"],title=out["title"],description=out["description"])
-            if "tps" in ctx.message.content.lower():
-                tps = BF.get_tickrate(ip_address, rcon_password)
-                embed.add_field(name="TPS",value="\n".join(tps))
+            if out["players"]:
+                players = "\n".join(out["players"])
+                desc = "{0} \n>>> {1}".format(out["description"],players)
+            else:
+                desc = out["description"]
+            embed = discord.Embed(colour=out["colour"],title=out["title"],description=desc)
+            embed.set_thumbnail(url=mc_thumb)
             await msg.edit(embed = embed)
     return
 """
